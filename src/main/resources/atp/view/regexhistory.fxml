@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gtp.atp.controller.RegexHistoryController"
+            style="-fx-background-color: #F5F5F5;">
+
+    <top>
+        <HBox style="-fx-background-color: white; -fx-padding: 15;">
+            <Label text="Regex History" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="searchField" promptText="Search patterns..."
+                       style="-fx-background-radius: 20; -fx-border-radius: 20;"/>
+            <Button text="Back" onAction="#handleBack"
+                    style="-fx-background-color: #FF3880; -fx-text-fill: white;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="historyTable" prefWidth="800" prefHeight="600"  BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="patternColumn" text="Pattern" />
+                <TableColumn fx:id="usageCountColumn" text="Usage Count" />
+                <TableColumn fx:id="lastUsedColumn" text="Last Used" />
+                <TableColumn fx:id="actionsColumn" text="Actions" />
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

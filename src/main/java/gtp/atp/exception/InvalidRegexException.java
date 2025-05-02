@@ -35,7 +35,7 @@ public class InvalidRegexException extends Exception {
      * Constructs a new exception with the specified invalid regex pattern and cause.
      *
      * @param regex the invalid regular expression pattern that caused the exception
-     * @param cause the underlying cause of the exception (may be null)
+     * @param cause the underlying cause of the exception
      */
     public InvalidRegexException(String regex, Throwable cause) {
         super(String.format("Invalid regex: %s.", regex), cause);
@@ -56,7 +56,7 @@ public class InvalidRegexException extends Exception {
      *
      * @param regex the invalid regular expression pattern
      * @param validationContext the context in which validation failed (e.g., "email validation")
-     * @param cause the underlying cause of the exception (may be null)
+     * @param cause the underlying cause of the exception
      */
     public InvalidRegexException(String regex, String validationContext, Throwable cause) {
         super(String.format("Invalid regex '%s' in %s.", regex, validationContext), cause);

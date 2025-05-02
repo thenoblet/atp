@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gtp.atp.controller.DataFlowController"
+            prefHeight="700" prefWidth="1200"
+            style="-fx-background-color: white;">
+
+    <!-- Left Sidebar -->
+    <left>
+        <VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: #FF3880;" prefWidth="240">
+            <!-- Logo Section -->
+            <HBox alignment="CENTER" style="-fx-padding: 20 0 40 0;">
+                <StackPane>
+                    <Rectangle width="180" height="50" fill="white" arcWidth="20" arcHeight="20"/>
+                    <Label text="DataFlow" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+                </StackPane>
+            </HBox>
+
+            <!-- Menu Buttons -->
+            <Button text="File Operations" prefWidth="200"
+                    style="-fx-background-color: white; -fx-background-radius: 20; -fx-font-size: 16px;"/>
+
+            <Button text="Text Analysis" prefWidth="200"
+                    style="-fx-background-color: white; -fx-background-radius: 20; -fx-font-size: 16px;"/>
+
+            <Button text="Regex History" prefWidth="200"
+                    style="-fx-background-color: white; -fx-background-radius: 20; -fx-font-size: 16px;"
+                    onAction="#showRegexHistory"/>
+
+            <VBox.margin>
+                <Insets top="0" right="0" bottom="0" left="0"/>
+            </VBox.margin>
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+        </VBox>
+    </left>
+
+    <!-- Main Content Area -->
+    <center>
+        <VBox spacing="20" style="-fx-background-color: #F5F5F5;">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+                <!-- Input Section -->
+                <VBox spacing="10" HBox.hgrow="ALWAYS">
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E0E0E0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+
+                        <Label text="Input Text" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                        <AnchorPane VBox.vgrow="ALWAYS">
+                            <TextArea fx:id="inputTextArea" promptText="Enter text"
+                                      style="-fx-border-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;"
+                                      wrapText="true"
+                                      AnchorPane.topAnchor="0.0"
+                                      AnchorPane.rightAnchor="0.0"
+                                      AnchorPane.bottomAnchor="0.0"
+                                      AnchorPane.leftAnchor="0.0"/>
+
+                            <!-- File upload button -->
+                            <Button fx:id="uploadButton"
+                                    style="-fx-background-color: #FF3880; -fx-background-radius: 50; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40;"
+                                    onAction="#handleFileUpload"
+                                    AnchorPane.bottomAnchor="10.0"
+                                    AnchorPane.rightAnchor="10.0">
+                                <graphic>
+                                    <Label text="+" style="-fx-text-fill: white; -fx-font-size: 30px; -fx-font-weight: bold;"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip text="Upload a file"/>
+                                </tooltip>
+                            </Button>
+                        </AnchorPane>
+                    </VBox>
+
+                    <!-- Regex Section -->
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E0E0E0; -fx-border-radius: 10; -fx-border-width: 1;">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+
+                        <Label text="Regex Pattern" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <TextField fx:id="regexPatternField" promptText="Input regex"
+                                   style="-fx-border-color: #E0E0E0; -fx-border-radius: 20; -fx-background-radius: 20;"/>
+                    </VBox>
+
+                    <!-- Replacement Section -->
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E0E0E0; -fx-border-radius: 10; -fx-border-width: 1;">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+
+                        <Label text="Replacement Text" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <TextField fx:id="replacementTextField" promptText="Enter replacement word"
+                                   style="-fx-border-color: #E0E0E0; -fx-border-radius: 20; -fx-background-radius: 20;"/>
+                    </VBox>
+
+                    <!-- Action Buttons -->
+                    <HBox spacing="10">
+                        <Button text="Search" onAction="#handleSearch" style="-fx-background-color: #FF3880; -fx-text-fill: white; -fx-background-radius: 20; -fx-min-width: 100;"/>
+                        <Button text="Replace" onAction="#handleReplace" style="-fx-background-color: #FF3880; -fx-text-fill: white; -fx-background-radius: 20; -fx-min-width: 100;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Output Section -->
+                <VBox spacing="10" HBox.hgrow="ALWAYS">
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E0E0E0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+
+                        <Label text="Output Text" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        <TextArea fx:id="outputTextArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                                  style="-fx-border-color: #E0E0E0; -fx-border-radius: 5; -fx-background-radius: 5;"/>
+                    </VBox>
+
+                    <!-- Output Action Buttons -->
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="Save" onAction="#handleSave" style="-fx-background-color: #FF3880; -fx-text-fill: white; -fx-background-radius: 20; -fx-min-width: 100;"/>
+                        <Button text="Export" onAction="#handleExport" style="-fx-background-color: #FF3880; -fx-text-fill: white; -fx-background-radius: 20; -fx-min-width: 100;"/>
+                        <Button text="Clear" onAction="#handleClear" style="-fx-background-color: #FF3880; -fx-text-fill: white; -fx-background-radius: 20; -fx-min-width: 100;"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

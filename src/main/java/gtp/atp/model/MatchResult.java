@@ -66,7 +66,7 @@ public class MatchResult {
      */
     public void setStartIndex(int startIndex) {
         if (startIndex < 0) {
-            throw new IndexOutOfBoundsException("startIndex is negative");
+            throw new IndexOutOfBoundsException("startIndex cannot be negative");
         }
 
         this.startIndex = startIndex;

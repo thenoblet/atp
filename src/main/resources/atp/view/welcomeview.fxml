@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="gtp.atp.controller.WelcomeController"
+           style="-fx-background-color: #f0f0f0;">
+
+    <AnchorPane maxWidth="700" maxHeight="500"
+                style="-fx-background-color: white; -fx-background-radius: 10;">
+
+        <!-- Main content container -->
+        <BorderPane AnchorPane.topAnchor="0.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+
+            <!-- Left side with illustration -->
+            <left>
+                <StackPane>
+                    <Circle radius="125"
+                            fill="#FF3880"
+                            StackPane.alignment="CENTER_LEFT"/>
+
+                    <!-- Use the SVG that exists in your project -->
+                    <ImageView fitWidth="200" fitHeight="200"
+                               preserveRatio="true"
+                               StackPane.alignment="CENTER_LEFT">
+                        <Image url="@../media/5568781_2895107.svg"/>
+                    </ImageView>
+
+                    <!-- Small circle decoration -->
+                    <Circle radius="20"
+                            fill="#FFD6E5"
+                            StackPane.alignment="BOTTOM_LEFT">
+                        <StackPane.margin>
+                            <Insets bottom="20" left="20"/>
+                        </StackPane.margin>
+                    </Circle>
+                </StackPane>
+            </left>
+
+            <!-- Right side with application content -->
+            <center>
+                <VBox alignment="CENTER" spacing="30"
+                      style="-fx-background-color: #FFD6E5; -fx-background-radius: 0 10 10 0;">
+
+                    <!-- Title section -->
+                    <HBox alignment="CENTER">
+                        <BorderPane style="-fx-background-color: white;
+                                         -fx-background-radius: 30;
+                                         -fx-border-color: #FF3880;
+                                         -fx-border-radius: 30;
+                                         -fx-border-width: 2;">
+                            <padding>
+                                <Insets top="15" right="40" bottom="15" left="40"/>
+                            </padding>
+                            <center>
+                                <Label text="DataFlow Solutions"
+                                       style="-fx-font-size: 28px;
+                                           -fx-font-weight: bold;"/>
+                            </center>
+                        </BorderPane>
+                    </HBox>
+
+                    <!-- Subtitle -->
+                    <Label text="Automated Text Processor"
+                           style="-fx-font-size: 24px; -fx-font-weight: normal;"/>
+
+                    <!-- Progress Indicator Section -->
+                    <VBox alignment="CENTER" spacing="10">
+                        <ProgressIndicator fx:id="progressIndicator" progress="0"
+                                           style="-fx-progress-color: #FF3880;
+                       -fx-pref-width: 60px; -fx-pref-height: 60px;"/>
+                        <Label fx:id="statusLabel" text="Loading..."
+                               style="-fx-font-size: 14px; -fx-text-fill: #333; -fx-font-weight: bold;"/>
+
+                    </VBox>
+
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                </VBox>
+            </center>
+        </BorderPane>
+    </AnchorPane>
+</StackPane>
