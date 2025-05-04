@@ -27,6 +27,7 @@ public final class RegexUtils {
         if (regex == null || regex.trim().isEmpty()) {
             throw new NullPointerException("Regex pattern cannot be null or empty");
         }
+
         try {
             Pattern.compile(regex);
             return true;

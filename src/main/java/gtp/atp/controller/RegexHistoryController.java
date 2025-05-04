@@ -17,18 +17,21 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controller for managing and displaying the history of used regular expression patterns.
  * Provides functionality to view, search, and select previously used patterns.
  */
 public class RegexHistoryController {
+    private static final Logger LOGGER = Logger.getLogger(RegexHistoryController.class.getName());
+
     @FXML private TableView<RegexHistory> historyTable;
     @FXML private TableColumn<RegexHistory, String> patternColumn;
     @FXML private TableColumn<RegexHistory, Number> usageCountColumn;
@@ -47,6 +50,7 @@ public class RegexHistoryController {
      * @param historyManager the history manager instance to use
      */
     public void setHistoryManager(RegexHistoryManager historyManager) {
+        LOGGER.fine("Setting history manager and loading initial data");
         this.historyManager = historyManager;
         loadHistoryData();
     }
@@ -57,6 +61,7 @@ public class RegexHistoryController {
      * @param patternConsumer callback that receives the selected pattern
      */
     public void setPatternConsumer(Consumer<String> patternConsumer) {
+        LOGGER.fine("Setting pattern selection consumer");
         this.patternConsumer = patternConsumer;
     }
 
@@ -66,31 +71,32 @@ public class RegexHistoryController {
      */
     @FXML
     private void initialize() {
-        configurePatternColumn();
-        configureUsageCountColumn();
-        configureLastUsedColumn();
-        configureActionsColumn();
-        setupSearchFunctionality();
+        LOGGER.fine("Initializing RegexHistoryController");
+        try {
+            configurePatternColumn();
+            configureUsageCountColumn();
+            configureLastUsedColumn();
+            configureActionsColumn();
+            setupSearchFunctionality();
+            LOGGER.fine("RegexHistoryController initialized successfully");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to initialize RegexHistoryController", e);
+            throw new RuntimeException("Controller initialization failed", e);
+        }
     }
 
-    /**
-     * Configures the pattern column with cell value factory.
-     */
     private void configurePatternColumn() {
+        LOGGER.finest("Configuring pattern column");
         patternColumn.setCellValueFactory(new PropertyValueFactory<>("pattern"));
     }
 
-    /**
-     * Configures the usage count column with cell value factory.
-     */
     private void configureUsageCountColumn() {
+        LOGGER.finest("Configuring usage count column");
         usageCountColumn.setCellValueFactory(new PropertyValueFactory<>("usageCount"));
     }
 
-    /**
-     * Configures the last used column with formatted date display.
-     */
     private void configureLastUsedColumn() {
+        LOGGER.finest("Configuring last used column");
         lastUsedColumn.setCellValueFactory(cellData ->
                 cellData.getValue().timestampProperty().asString()
         );
@@ -102,89 +108,95 @@ public class RegexHistoryController {
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    LocalDateTime date = LocalDateTime.parse(item);
-                    setText(date.format(dateFormatter));
+                    try {
+                        LocalDateTime date = LocalDateTime.parse(item);
+                        setText(date.format(dateFormatter));
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Failed to format date: " + item, e);
+                        setText("Invalid date");
+                    }
                 }
             }
         });
     }
 
-    /**
-     * Configures the actions column with custom cell factory.
-     */
     private void configureActionsColumn() {
-        actionsColumn.setCellFactory(col -> new HistoryActionCell(
-                historyManager,
-                this::refreshHistory,
-                this::handlePatternSelection
-        ));
+        LOGGER.finest("Configuring actions column");
+        actionsColumn.setCellFactory(col -> {
+            LOGGER.finest("Creating new HistoryActionCell");
+            return new HistoryActionCell(
+                    historyManager,
+                    this::refreshHistory,
+                    this::handlePatternSelection
+            );
+        });
     }
 
-    /**
-     * Sets up search functionality with text field listener.
-     */
     private void setupSearchFunctionality() {
+        LOGGER.fine("Setting up search functionality");
         historyTable.setItems(historyData);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            LOGGER.fine("Search field changed: " + newValue);
             filterHistory(newValue);
         });
     }
 
-    /**
-     * Loads history data from the history manager.
-     */
     private void loadHistoryData() {
         if (historyManager != null) {
-            historyData.setAll(historyManager.getRegexHistoryList());
+            LOGGER.fine("Loading history data from manager");
+            try {
+                List<RegexHistory> historyList = historyManager.getRegexHistoryList();
+                historyData.setAll(historyList);
+                LOGGER.info("Loaded " + historyList.size() + " history entries");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Failed to load history data", e);
+            }
+        } else {
+            LOGGER.warning("Attempted to load history data with null history manager");
         }
     }
 
-    /**
-     * Filters history entries based on search term.
-     *
-     * @param searchTerm the term to filter patterns by
-     */
     private void filterHistory(String searchTerm) {
         if (searchTerm == null || searchTerm.isEmpty()) {
+            LOGGER.fine("Resetting history filter");
             loadHistoryData();
         } else {
-            historyData.setAll(historyManager.searchPatterns(searchTerm));
+            LOGGER.fine("Filtering history with search term: " + searchTerm);
+            try {
+                List<RegexHistory> filtered = historyManager.searchPatterns(searchTerm);
+                historyData.setAll(filtered);
+                LOGGER.fine("Filtered to " + filtered.size() + " matching entries");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Failed to filter history", e);
+            }
         }
     }
 
-    /**
-     * Handles pattern selection from the history table.
-     *
-     * @param pattern the selected pattern
-     */
     private void handlePatternSelection(String pattern) {
+        LOGGER.info("Pattern selected from history: " + pattern);
         if (patternConsumer != null) {
             patternConsumer.accept(pattern);
+        } else {
+            LOGGER.warning("No pattern consumer set for selection");
         }
     }
 
-    /**
-     * Refreshes the history data in the table.
-     */
     private void refreshHistory() {
-        List<RegexHistory> allHistory = historyManager.getRegexHistoryList();
-        historyData.setAll(allHistory);
+        LOGGER.fine("Refreshing history data");
+        loadHistoryData();
     }
 
-    /**
-     * Handles the back button action to return to main view.
-     *
-     * @param event the action event
-     */
     @FXML
     private void handleBack(ActionEvent event) {
+        LOGGER.fine("Handling back button action");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/atp/view/mainview.fxml"));
             Parent mainView = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(mainView));
+            LOGGER.fine("Successfully navigated back to main view");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to navigate back to main view", e);
         }
     }
 }

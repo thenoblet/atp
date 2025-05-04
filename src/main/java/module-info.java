@@ -13,4 +13,6 @@ module gtp.atp {
     exports gtp.atp.controller;
     exports gtp.atp.model;
     exports gtp.atp.service;
+    exports gtp.atp.util;
+    exports gtp.atp.exception;
 }

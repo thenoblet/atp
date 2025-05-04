@@ -112,7 +112,7 @@ public class WelcomeController {
                     (int) scene.getWidth(), (int) scene.getHeight()));
 
             Stage mainStage = new Stage();
-            mainStage.setTitle("Employee Management System");
+            mainStage.setTitle("DataFlow ATP");
             mainStage.setScene(scene);
             mainStage.show();
 

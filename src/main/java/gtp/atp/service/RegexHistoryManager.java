@@ -97,8 +97,8 @@ public class RegexHistoryManager {
      *
      * @param regex the regular expression pattern to remove
      */
-    public void removeRegexHistory(String regex) {
-        regexHistoryMap.remove(regex);
+    public RegexHistory removeRegexHistory(String regex) {
+        return regexHistoryMap.remove(regex);
     }
 
     /**
