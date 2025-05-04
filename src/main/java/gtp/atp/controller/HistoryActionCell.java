@@ -4,6 +4,11 @@ import gtp.atp.model.RegexHistory;
 import gtp.atp.service.RegexHistoryManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+
+import java.awt.desktop.SystemEventListener;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.function.Consumer;
 
 /**
@@ -11,6 +16,8 @@ import java.util.function.Consumer;
  * in a TableView of regex history entries. Handles user interactions with history items.
  */
 public class HistoryActionCell extends TableCell<RegexHistory, String> {
+    private static final Logger LOGGER = Logger.getLogger(HistoryActionCell.class.getName());
+
     private final Button useButton = new Button("Use");
     private final Button deleteButton = new Button("Delete");
     private final HBox buttonBox = new HBox(5, useButton, deleteButton);
@@ -34,8 +41,11 @@ public class HistoryActionCell extends TableCell<RegexHistory, String> {
         useButton.setOnAction(event -> {
             RegexHistory entry = getCurrentEntry();
             if (entry != null) {
+                LOGGER.info("User selected pattern from history: " + entry.getPattern());
                 patternConsumer.accept(entry.getPattern());
                 closeHistoryWindow();
+            } else {
+                LOGGER.warning("Attempted to use null history entry");
             }
         });
 
@@ -43,9 +53,14 @@ public class HistoryActionCell extends TableCell<RegexHistory, String> {
         deleteButton.setOnAction(event -> {
             RegexHistory entry = getCurrentEntry();
             if (entry != null) {
+                LOGGER.fine("User initiated delete for pattern: " + entry.getPattern());
                 confirmAndDelete(historyManager, refreshCallback, entry);
+            } else {
+                LOGGER.warning("Attempted to delete null history entry");
             }
         });
+
+        LOGGER.fine("HistoryActionCell initialized with action buttons");
     }
 
     /**
@@ -54,14 +69,23 @@ public class HistoryActionCell extends TableCell<RegexHistory, String> {
      * @return the current RegexHistory entry, or null if not available
      */
     private RegexHistory getCurrentEntry() {
-        return (RegexHistory) getTableRow().getItem();
+        RegexHistory entry = (RegexHistory) getTableRow().getItem();
+        if (entry == null) {
+            LOGGER.finest("Current table row has no associated history entry");
+        }
+        return entry;
     }
 
     /**
      * Closes the history window containing this table view.
      */
     private void closeHistoryWindow() {
-        getTableView().getScene().getWindow().hide();
+        try {
+            getTableView().getScene().getWindow().hide();
+            LOGGER.fine("History window closed after pattern selection");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to close history window", e);
+        }
     }
 
     /**
@@ -74,15 +98,28 @@ public class HistoryActionCell extends TableCell<RegexHistory, String> {
     private void confirmAndDelete(RegexHistoryManager historyManager,
                                   Runnable refreshCallback,
                                   RegexHistory entry) {
+        String pattern = entry.getPattern();
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Pattern");
         alert.setHeaderText("Delete Regex Pattern");
-        alert.setContentText("Are you sure you want to delete: " + entry.getPattern() + "?");
+        alert.setContentText("Are you sure you want to delete: " + pattern + "?");
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                historyManager.removeRegexHistory(entry.getPattern());
-                refreshCallback.run();
+                try {
+                    LOGGER.info("Deleting pattern from history: " + pattern);
+                    RegexHistory removed = historyManager.removeRegexHistory(pattern);
+                    if (removed.getPattern().equalsIgnoreCase(pattern)) {
+                        LOGGER.fine("Pattern successfully deleted: " + pattern);
+                        refreshCallback.run();
+                    } else {
+                        LOGGER.warning("Pattern not found in history: " + pattern);
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Failed to delete pattern: " + pattern, e);
+                }
+            } else {
+                LOGGER.fine("User cancelled deletion of pattern: " + pattern);
             }
         });
     }
@@ -97,8 +134,10 @@ public class HistoryActionCell extends TableCell<RegexHistory, String> {
     protected void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
         if (empty) {
+            LOGGER.finest("Rendering empty history cell");
             setGraphic(null);
         } else {
+            LOGGER.finest("Rendering history cell with action buttons");
             setGraphic(buttonBox);
         }
     }

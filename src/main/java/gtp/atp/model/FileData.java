@@ -3,6 +3,8 @@ package gtp.atp.model;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -12,6 +14,8 @@ import java.util.stream.Stream;
  * @param fileSize in bytes
  */
 public record FileData(String fileName, long fileSize, Path filePath, Stream<String> fileContent) {
+    private static final Logger LOGGER = Logger.getLogger(FileData.class.getName());
+
     /**
      * Constructs a TextFileData object with file metadata and content.
      *
@@ -22,10 +26,14 @@ public record FileData(String fileName, long fileSize, Path filePath, Stream<Str
      * @throws IllegalArgumentException if any parameter is invalid
      */
     public FileData(String fileName, long fileSize, Path filePath, Stream<String> fileContent) {
+        LOGGER.fine(() -> "Creating new FileData instance for: " + fileName);
         this.fileName = Objects.requireNonNull(fileName, "File name cannot be null");
         this.fileSize = validateFileSize(fileSize);
         this.filePath = Objects.requireNonNull(filePath, "File path cannot be null");
         this.fileContent = Objects.requireNonNull(fileContent, "File content cannot be null");
+        LOGGER.fine(() -> String.format(
+                "FileData created - Name: %s, Size: %d bytes, Path: %s",
+                fileName, fileSize, filePath));
     }
 
     /**
@@ -37,6 +45,8 @@ public record FileData(String fileName, long fileSize, Path filePath, Stream<Str
      */
     private long validateFileSize(long size) {
         if (size < 0) {
+            String errorMsg = "Invalid file size: " + size;
+            LOGGER.severe(errorMsg);
             throw new IllegalArgumentException("File size cannot be negative");
         }
         return size;
@@ -49,7 +59,18 @@ public record FileData(String fileName, long fileSize, Path filePath, Stream<Str
      * @return the line count
      */
     public int getLineCount() {
-        return Math.toIntExact(fileContent.count());
+        LOGGER.fine("Calculating line count for file: " + fileName);
+        try {
+            int count = Math.toIntExact(fileContent.count());
+            LOGGER.fine("File " + fileName + " has " + count + " lines");
+            return count;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to count lines in file: " + fileName, e);
+            throw e;
+        } finally {
+            // Reset the stream as count() is a terminal operation
+            fileContent.close();
+        }
     }
 
     public String getFileName() {
@@ -70,8 +91,11 @@ public record FileData(String fileName, long fileSize, Path filePath, Stream<Str
      * @return the file extension or empty string if none
      */
     public String getFileExtension() {
+        LOGGER.finest("Getting file extension for: " + fileName);
         int dotIndex = fileName.lastIndexOf('.');
-        return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
+        String extension = (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
+        LOGGER.finest("File extension for " + fileName + ": " + extension);
+        return extension;
     }
 
     @Override
@@ -103,11 +127,19 @@ public record FileData(String fileName, long fileSize, Path filePath, Stream<Str
      * @return a new TextFileData instance
      */
     public static FileData fromFile(File file, Stream<String> content) {
-        return new FileData(
-                file.getName(),
-                file.length(),
-                file.toPath(),
-                content
-        );
+        LOGGER.fine("Creating FileData from File object: " + file.getName());
+        try {
+            FileData fileData = new FileData(
+                    file.getName(),
+                    file.length(),
+                    file.toPath(),
+                    content
+            );
+            LOGGER.info("Successfully created FileData for: " + file.getName());
+            return fileData;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to create FileData from file: " + file.getName(), e);
+            throw e;
+        }
     }
 }
